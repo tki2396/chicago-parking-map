@@ -41,7 +41,7 @@ function getZoneColor(zone: string): string {
 
 /* Load and add the parking segments as a line layer */
 map.on('load', () => {
-  fetch('output_segments.geojson')
+  fetch('data/output_segments.geojson')
     .then(resp => resp.json())
     .then((geojson) => {
       // Add the GeoJSON as a source
