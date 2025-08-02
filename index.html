@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Chicago Parking Permit Zones Map</title>
@@ -7,11 +8,23 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    html, body { height: 100%; margin: 0; }
-    #map { width: 100vw; height: 100vh; }
-    .leaflet-popup-content { font-size: 1em; }
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    #map {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .leaflet-popup-content {
+      font-size: 1em;
+    }
   </style>
 </head>
+
 <body>
   <div id="map"></div>
   <!-- Leaflet JS -->
@@ -26,20 +39,33 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
+    // Helper: assign a color to each zone
+    function getZoneColor(zone) {
+      // Simple hash to color: pick from a palette
+      const palette = [
+        "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0",
+        "#f032e6", "#bcf60c", "#fabebe", "#008080", "#e6beff", "#9a6324", "#fffac8",
+        "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080", "#ffffff", "#000000"
+      ];
+      // Use zone as string, hash to index
+      let hash = 0;
+      for (let i = 0; i < zone.length; i++) {
+        hash = zone.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return palette[Math.abs(hash) % palette.length];
+    }
+
     // Load GeoJSON data (replace with actual fetch in production)
-    fetch('output_segments.geojson')
+    fetch('parking_segments.geojson')
       .then(response => response.json())
       .then(data => {
         L.geoJSON(data, {
-          pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, {
-              radius: 5,
-              fillColor: "#0074D9",
-              color: "#222",
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.7
-            });
+          style: function (feature) {
+            return {
+              color: getZoneColor(String(feature.properties.zone)),
+              weight: 4,
+              opacity: 0.8
+            };
           },
           onEachFeature: function (feature, layer) {
             var p = feature.properties;
@@ -57,3 +83,5 @@
       });
   </script>
 </body>
+
+</html>
