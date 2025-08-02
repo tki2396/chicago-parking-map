@@ -1,6 +1,8 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibregl from 'maplibre-gl';
 
+const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY
+
 // Create the map container
 const mapDiv = document.createElement('div');
 mapDiv.id = 'map';
@@ -11,7 +13,7 @@ document.body.appendChild(mapDiv);
 // Initialize MapLibre map
 const map = new maplibregl.Map({
   container: 'map',
-  style: 'https://tiles.stadiamaps.com/styles/osm_bright.json', // Open, detailed style with roads/cities
+  style: `https://api.maptiler.com/maps/basic/style.json?key=${MAPTILER_KEY}`, // Open, no-auth, minimal vector style
   center: [-87.6298, 41.8781], // Chicago
   zoom: 11
 });
