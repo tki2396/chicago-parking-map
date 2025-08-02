@@ -1,0 +1,17 @@
+{
+  "name": "chicago-parking-map",
+  "version": "1.0.0",
+  "description": "Interactive map of Chicago parking permit zones using MapLibre, TypeScript, and Vite.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "maplibre-gl": "^3.6.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  }
+}

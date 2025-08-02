@@ -28,45 +28,67 @@ Create an interactive web map that visualizes Chicago's residential parking perm
 
 ## 3. Map Visualization
 
-### 3.1. Choose Mapping Library
-- Use a modern web mapping library:
-    - [Leaflet.js](https://leafletjs.com/) (open source, easy to use)
-    - [Mapbox GL JS](https://docs.mapbox.com/mapbox-gl-js/) (more advanced, free tier available)
-    - [Google Maps JS API] (if preferred, but may have cost/usage limits)
+### 3.1. Mapping Library and Frontend Stack
 
-### 3.2. Render Zone Segments
-- For each geocoded street segment, draw a polyline or point on the map.
-- Color-code or style lines/points by zone.
-- Optionally, group contiguous segments into polygons if possible (advanced).
+- **Mapping Library:** Use [MapLibre GL JS](https://maplibre.org/projects/maplibre-gl-js/), a fully open source fork of Mapbox GL JS v1.x, for modern vector maps and advanced styling. No API key or vendor lock-in required.
+- **Frontend:** Use TypeScript for all frontend code, organized in `src/`.
+- **Build Tool:** Use [Vite](https://vitejs.dev/) for fast TypeScript/ESM builds and local development.
+- **Deployment:** The output is static HTML/JS/CSS, compatible with GitHub Pages and other static hosts.
 
-### 3.3. Interactivity
+### 3.2. Project Structure
+
+- `src/main.ts`: TypeScript entrypoint for the map UI.
+- `index.html`: Loads the Vite/TS bundle as a module.
+- `vite.config.js`, `tsconfig.json`: Build and TypeScript config.
+- `data/`, `parking_segments.geojson`: Data files.
+
+### 3.3. Rendering Zones
+
+- For each geocoded street segment, draw a colored polyline on the map, colored by zone.
+- **Next step:** To show the area/boundary of each zone, generate polygons (not just lines) for each zone. This may require:
+    - Grouping contiguous segments by zone.
+    - Using a polygonization algorithm or heuristics to "fill" the area.
+    - Rendering polygons with semi-transparent fill and colored borders.
+
+### 3.4. Interactivity
+
 - On hover/click: show zone number, street info, and any relevant restrictions.
 - Search bar: allow users to enter an address, geocode it, and highlight the corresponding zone.
-- Filter: allow users to select a zone and highlight all its segments.
+- Filter: allow users to select a zone and highlight all its segments or area.
 
-### 3.4. Legend & UI
+### 3.5. Legend & UI
+
 - Add a legend explaining colors/styles.
 - Provide instructions for searching and interpreting the map.
 
 ## 4. Web Application Structure
 
 ### 4.1. Frontend
-- Framework: Vanilla JS, React, or Vue (depending on complexity and preference).
-- Components:
-    - Map display
-    - Search/filter controls
-    - Info popups/tooltips
-    - Legend
 
-### 4.2. Backend (Optional)
-- If geocoding on-the-fly or handling user uploads, a backend (Node.js, Python Flask, etc.) may be needed.
-- For a static site, pre-process all geocoding and serve as static assets.
+- All frontend code is written in TypeScript and lives in `src/`.
+- Use ES module imports and modern JS/TS features.
+- Vite handles local dev server, hot reload, and builds for production.
+- The map is initialized in `src/main.ts` using MapLibre GL JS.
 
-## 5. Deployment
+### 4.2. Deployment
 
-- Host as a static site (GitHub Pages, Netlify, Vercel) if all data is pre-processed.
-- If a backend is needed, deploy to a suitable platform (Heroku, Render, etc.).
-- Ensure API keys (if used) are secured and not exposed in the frontend.
+- The built site is static and can be deployed to GitHub Pages or any static host.
+- Only the compiled JS (not raw TS) is deployed.
+- No backend is required unless you want to add dynamic geocoding or user uploads.
+
+## 5. Development and Deployment Workflow
+
+- **Local development:** Use Vite for fast dev server and hot reload:
+  ```
+  npm run dev
+  ```
+- **Build for production:** 
+  ```
+  npm run build
+  ```
+  Output is in `dist/`.
+- **Deploy:** Push the contents of `dist/` (and static files) to GitHub Pages or your preferred static host.
+- **No API keys required** for MapLibre and open vector tiles.
 
 ## 6. Technical Challenges & Solutions
 
@@ -80,6 +102,8 @@ Create an interactive web map that visualizes Chicago's residential parking perm
 - Allow users to draw/select an area and see all zones intersecting it.
 - Show permit rules, costs, and links to city resources.
 - Mobile-friendly/responsive design.
+- Add address search and zone highlight.
+- Generate and display polygons for full zone areas (not just lines).
 
 ---
 
@@ -87,7 +111,8 @@ Create an interactive web map that visualizes Chicago's residential parking perm
 
 1. Parse and inspect the CSV to understand data quirks.
 2. Prototype geocoding for a sample of street segments.
-3. Choose mapping library and set up a basic map.
+3. **Switch to MapLibre GL JS and TypeScript frontend (done).**
 4. Develop data pipeline for geocoding and GeoJSON generation.
-5. Build out the interactive frontend.
-6. Deploy and test with real users.
+5. Build out the interactive frontend using Vite and MapLibre.
+6. **Implement area coloring:** Generate polygons for each zone and render them with fill color.
+7. Deploy and test with real users.
