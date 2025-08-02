@@ -4,7 +4,7 @@ import requests
 import json
 import os
 
-from parse_zones import load_parking_zones, get_unique_street_segments
+from scripts.parse_zones import load_parking_zones, get_unique_street_segments
 
 logger = logging.getLogger()
 
