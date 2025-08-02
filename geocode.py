@@ -13,15 +13,13 @@ USER_AGENT = os.getenv("USER_AGENT")
 CACHE_FILE = os.getenv("CACHE_FILE")
 GEOJSON_FILE = os.getenv("GEOJSON_FILE")
 
-def build_query(row, which="low"):
-    """
-    Build a geocoding query for the low or high address of a segment.
-    """
-    addr = row["ADDRESS RANGE - LOW"] if which == "low" else row["ADDRESS RANGE - HIGH"]
+
+def build_query(row):
+    addr_low = row["ADDRESS RANGE - LOW"]
     direction = row["STREET DIRECTION"]
     name = row["STREET NAME"]
     st_type = row["STREET TYPE"]
-    return f"{addr} {direction} {name} {st_type}, Chicago, IL"
+    return f"{addr_low} {direction} {name} {st_type}, Chicago, IL"
 
 def geocode(query):
     params = {
@@ -53,31 +51,26 @@ def main():
     features = []
 
     for i, row in enumerate(segments):
-        seg_id = f"{row['STREET DIRECTION']}|{row['STREET NAME']}|{row['STREET TYPE']}|{row['ADDRESS RANGE - LOW']}|{row['ADDRESS RANGE - HIGH']}"
+        seg_id = f"{row['STREET DIRECTION']}|{row['STREET NAME']}|{row['STREET TYPE']}|{row['ADDRESS RANGE - LOW']}"
         if seg_id in cache:
-            result_low, result_high = cache[seg_id]
+            result = cache[seg_id]
         else:
-            query_low = build_query(row, "low")
-            query_high = build_query(row, "high")
-            logger.info(f"[{i+1}/{len(segments)}] Geocoding: {query_low} and {query_high}")
-            result_low = geocode(query_low)
-            time.sleep(1)
-            result_high = geocode(query_high)
-            cache[seg_id] = (result_low, result_high)
+            query = build_query(row)
+            logger.info(f"[{i+1}/{len(segments)}] Geocoding: {query}")
+            result = geocode(query)
+            cache[seg_id] = result
             save_cache(cache)
             time.sleep(1)  # Be polite to the API
 
-        if result_low and result_high:
+        if result:
             try:
-                lat1 = float(result_low["lat"])
-                lon1 = float(result_low["lon"])
-                lat2 = float(result_high["lat"])
-                lon2 = float(result_high["lon"])
+                lat = float(result["lat"])
+                lon = float(result["lon"])
                 features.append({
                     "type": "Feature",
                     "geometry": {
-                        "type": "LineString",
-                        "coordinates": [[lon1, lat1], [lon2, lat2]]
+                        "type": "Point",
+                        "coordinates": [lon, lat]
                     },
                     "properties": {
                         "zone": row["ZONE"],
@@ -91,8 +84,6 @@ def main():
                 })
             except Exception as e:
                 logger.error(f"Error parsing result: {e}")
-        else:
-            logger.warning("One or both geocoding results missing, skipping segment.")
 
     geojson = {
         "type": "FeatureCollection",
