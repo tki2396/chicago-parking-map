@@ -4,7 +4,7 @@ import requests
 import json
 import os
 
-from scripts.parse_zones import load_parking_zones, get_unique_street_segments
+from parse_zones import load_parking_zones, get_unique_street_segments
 
 logger = logging.getLogger()
 
@@ -12,6 +12,7 @@ NOMINATIM_URL = os.getenv("NOMINATIM_URL")
 USER_AGENT = os.getenv("USER_AGENT")
 CACHE_FILE = os.getenv("CACHE_FILE")
 GEOJSON_FILE = os.getenv("GEOJSON_FILE")
+
 
 def build_query(row, which="low"):
     """
@@ -30,10 +31,16 @@ def geocode(query):
         "addressdetails": 1,
         "limit": 1,
     }
+    logger.info(f"PARAMS: {params}")
+    logger.info(f"NOMINATIM_URL: {NOMINATIM_URL}")
     headers = {"User-Agent": USER_AGENT}
     resp = requests.get(NOMINATIM_URL, params=params, headers=headers)
+    logger.info(f"RESPONSE: {resp}")
     if resp.status_code == 200 and resp.json():
+        logger.info(resp.json()[0])
         return resp.json()[0]
+    else:
+        logger.error(f"Geocode error - status: {resp.status_code}, content: {resp.content}")
     return None
 
 def load_cache():
@@ -53,6 +60,7 @@ def main():
     features = []
 
     for i, row in enumerate(segments):
+        
         seg_id = f"{row['STREET DIRECTION']}|{row['STREET NAME']}|{row['STREET TYPE']}|{row['ADDRESS RANGE - LOW']}|{row['ADDRESS RANGE - HIGH']}"
         if seg_id in cache:
             result_low, result_high = cache[seg_id]
@@ -67,6 +75,8 @@ def main():
             save_cache(cache)
             time.sleep(1)  # Be polite to the API
 
+        logger.info(f"LOW: {result_low}")
+        logger.info(f"HIGH: {result_high}")
         if result_low and result_high:
             try:
                 lat1 = float(result_low["lat"])
