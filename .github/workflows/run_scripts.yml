@@ -30,8 +30,8 @@ jobs:
       run: |
         echo "NOMINATIM_URL=https://nominatim.openstreetmap.org/search" >> $GITHUB_ENV
         echo "USER_AGENT=chicago-parking-map-demo/1.0 (ijosetobi@gmail.com)" >> $GITHUB_ENV
-        echo "CACHE_FILE=public/data/segments_cache.json" >> $GITHUB_ENV
-        echo "GEOJSON_FILE=public/data/output_segments.geojson" >> $GITHUB_ENV
+        echo "CACHE_FILE=../public/data/segments_cache.json" >> $GITHUB_ENV
+        echo "GEOJSON_FILE=../public/data/output_segments.geojson" >> $GITHUB_ENV
     
     - name: Run parse_zones.py
       run: |
