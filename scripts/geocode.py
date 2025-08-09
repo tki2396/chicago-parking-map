@@ -35,6 +35,7 @@ def geocode(query):
     headers = {"User-Agent": USER_AGENT}
     resp = requests.get(NOMINATIM_URL, params=params, headers=headers)
     if resp.status_code == 200 and resp.json():
+        logger.info(resp.json()[0])
         return resp.json()[0]
     else:
         logger.error(f"Geocode error - status: {resp.status_code}, content: {resp.content}")
@@ -75,6 +76,8 @@ def main():
             save_cache(cache)
             time.sleep(1)  # Be polite to the API
 
+        logger.info(f"LOW: {result_low}")
+        logger.info(f"HIGH: {result_high}")
         if result_low and result_high:
             try:
                 lat1 = float(result_low["lat"])
