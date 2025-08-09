@@ -31,9 +31,11 @@ def geocode(query):
         "addressdetails": 1,
         "limit": 1,
     }
+    logger.info(f"PARAMS: {params}")
+    logger.info(f"NOMINATIM_URL: {NOMINATIM_URL}")
     headers = {"User-Agent": USER_AGENT}
     resp = requests.get(NOMINATIM_URL, params=params, headers=headers)
-    logger.info(resp)
+    logger.info(f"RESPONSE: {resp}")
     if resp.status_code == 200 and resp.json():
         logger.info(resp.json()[0])
         return resp.json()[0]
