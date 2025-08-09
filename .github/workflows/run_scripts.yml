@@ -1,0 +1,53 @@
+name: Run Python Scripts
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'scripts/**'
+      - 'public/data/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'scripts/**'
+      - 'public/data/**'
+  workflow_dispatch:
+
+jobs:
+  run-scripts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        version: "latest"
+    
+    - name: Set up environment variables
+      run: |
+        echo "NOMINATIM_URL=https://nominatim.openstreetmap.org/search" >> $GITHUB_ENV
+        echo "USER_AGENT=chicago-parking-map-demo/1.0 (ijosetobi@gmail.com)" >> $GITHUB_ENV
+        echo "CACHE_FILE=public/data/segments_cache.json" >> $GITHUB_ENV
+        echo "GEOJSON_FILE=public/data/output_segments.geojson" >> $GITHUB_ENV
+    
+    - name: Run parse_zones.py
+      run: |
+        cd scripts
+        uv run --with requests parse_zones.py
+    
+    - name: Run geocode.py
+      run: |
+        cd scripts
+        uv run --with requests geocode.py
+    
+    - name: Commit and push generated files
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add public/data/segments_cache.json public/data/output_segments.geojson
+        git diff --staged --quiet || git commit -m "Update generated data files from scripts"
+        git push
