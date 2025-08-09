@@ -1,7 +1,7 @@
 import csv
 from collections import Counter
 
-CSV_FILE = "/public/data/Parking_Permit_Zones_20250802.csv"
+CSV_FILE = "public/data/Parking_Permit_Zones_20250802.csv"
 
 def load_parking_zones(csv_file=CSV_FILE):
     """Load all rows from the parking zones CSV as a list of dicts."""
