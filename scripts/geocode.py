@@ -13,6 +13,8 @@ USER_AGENT = os.getenv("USER_AGENT")
 CACHE_FILE = os.getenv("CACHE_FILE")
 GEOJSON_FILE = os.getenv("GEOJSON_FILE")
 
+error_count = 0
+
 def build_query(row, which="low"):
     """
     Build a geocoding query for the low or high address of a segment.
@@ -34,6 +36,9 @@ def geocode(query):
     resp = requests.get(NOMINATIM_URL, params=params, headers=headers)
     if resp.status_code == 200 and resp.json():
         return resp.json()[0]
+    else:
+        logger.error(f"Geocode error - status: {resp.status_code}, content: {resp.content}")
+        error_count += 1
     return None
 
 def load_cache():
@@ -53,6 +58,9 @@ def main():
     features = []
 
     for i, row in enumerate(segments):
+        if error_count > 3:
+            logger.critical(f"TOO MANY ERRORS: {error_count}. TERMINATING")
+            return
         seg_id = f"{row['STREET DIRECTION']}|{row['STREET NAME']}|{row['STREET TYPE']}|{row['ADDRESS RANGE - LOW']}|{row['ADDRESS RANGE - HIGH']}"
         if seg_id in cache:
             result_low, result_high = cache[seg_id]
