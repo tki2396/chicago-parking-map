@@ -34,10 +34,14 @@ jobs:
         echo "GEOJSON_FILE=public/data/output_segments.geojson" >> $GITHUB_ENV
     
     - name: Run parse_zones.py
-      run: uv run --with requests scripts/parse_zones.py
+      run: |
+        cd scripts
+        uv run --with requests parse_zones.py
     
     - name: Run geocode.py
-      run: uv run --with requests scripts/geocode.py
+      run: |
+        cd scripts
+        uv run --with requests geocode.py
     
     - name: Commit and push generated files
       if: github.ref == 'refs/heads/main'
